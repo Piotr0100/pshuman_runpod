@@ -32,11 +32,16 @@ RUN pip install --no-cache-dir \
     rembg[gpu] pymatting \
     tqdm peft
 
-# RunPod SDK + brotli (required for RunPod job fetching)
-# v3 cache bust - force fresh install
-RUN pip install --no-cache-dir runpod brotli && \
-    python -c "import brotli; print('brotli OK')" && \
-    python -c "import runpod; print(f'runpod {runpod.__version__}')"
+# RunPod SDK with brotli support for aiohttp content decoding
+# v4 - install all brotli variants + upgrade aiohttp + latest runpod
+RUN pip install --no-cache-dir --upgrade \
+    runpod \
+    aiohttp[speedups] \
+    brotli \
+    brotlicffi \
+    && python -c "import brotli; print('brotli OK')" \
+    && python -c "import aiohttp; print(f'aiohttp {aiohttp.__version__}')" \
+    && python -c "import runpod; print(f'runpod {runpod.__version__}')"
 
 # NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
 # This adds ~2min to the first request only.
