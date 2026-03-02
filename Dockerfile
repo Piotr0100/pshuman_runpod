@@ -26,14 +26,17 @@ RUN git clone https://github.com/pengHTYX/PSHuman.git $PSHUMAN_DIR
 WORKDIR $PSHUMAN_DIR
 # Pin transformers<4.41 (CLIPFeatureExtractor removed in 4.41+)
 # Pin diffusers compatible with PyTorch 2.1
+# v7 - comprehensive deps with pinned versions for PyTorch 2.1 compat
 RUN pip install --no-cache-dir \
+    "numpy<2" \
     "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
     "accelerate==0.29.3" safetensors \
     omegaconf einops configargparse \
     opencv-python-headless Pillow scikit-image imageio \
     kornia open3d trimesh plyfile \
     "rembg[gpu]" pymatting \
-    tqdm peft
+    tqdm peft \
+    yacs scipy matplotlib addict pygltflib pyquaternion fire
 
 # RunPod SDK with brotli support for aiohttp content decoding
 # v4 - install all brotli variants + upgrade aiohttp + latest runpod
