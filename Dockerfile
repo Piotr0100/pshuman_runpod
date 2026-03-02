@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir \
     kornia open3d trimesh plyfile \
     rembg[gpu] pymatting \
     tqdm peft \
-    runpod
+    runpod brotli
 
 # NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
 # This adds ~2min to the first request only.
