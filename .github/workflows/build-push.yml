@@ -43,6 +43,5 @@ jobs:
           push: true
           tags: |
             ghcr.io/piotr0100/pshuman_runpod:latest
-            ghcr.io/piotr0100/pshuman_runpod:v2
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ghcr.io/piotr0100/pshuman_runpod:v3
+          no-cache: true

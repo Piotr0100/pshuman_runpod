@@ -30,8 +30,13 @@ RUN pip install --no-cache-dir \
     opencv-python-headless Pillow scikit-image imageio \
     kornia open3d trimesh plyfile \
     rembg[gpu] pymatting \
-    tqdm peft \
-    runpod brotli
+    tqdm peft
+
+# RunPod SDK + brotli (required for RunPod job fetching)
+# v3 cache bust - force fresh install
+RUN pip install --no-cache-dir runpod brotli && \
+    python -c "import brotli; print('brotli OK')" && \
+    python -c "import runpod; print(f'runpod {runpod.__version__}')"
 
 # NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
 # This adds ~2min to the first request only.
