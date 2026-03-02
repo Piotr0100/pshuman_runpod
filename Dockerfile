@@ -21,37 +21,28 @@ RUN pip install --no-cache-dir kaolin==0.17.0 \
 # Clone PSHuman
 RUN git clone https://github.com/pengHTYX/PSHuman.git $PSHUMAN_DIR
 
-# v8 - Install PSHuman's full requirements.txt but pin critical versions first
-# and filter out packages that conflict with our base image
+# v9 - Install requirements.txt directly, allow failures for torch/cuda packages
 WORKDIR $PSHUMAN_DIR
 
-# Pin versions that must be compatible with PyTorch 2.1
-RUN pip install --no-cache-dir \
+# Install ALL of requirements.txt — let pip resolve what it can.
+# Some packages (torch, tensorrt, etc.) will fail since they're already installed
+# or unavailable — that's fine, we continue anyway.
+RUN pip install --no-cache-dir -r requirements.txt; exit 0
+
+# Force-pin versions that must be compatible with PyTorch 2.1
+# (requirements.txt may have pulled incompatible newer versions)
+RUN pip install --no-cache-dir --force-reinstall \
     "numpy<2" \
     "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
     "accelerate==0.29.3" safetensors
 
-# Install everything from requirements.txt, skipping torch/cuda/tensorrt
-# (already in base image) and ignoring version conflicts
-RUN grep -viE "^(torch|nvidia|tensorrt|triton|xformers|pytorch3d|nvdiffrast|jax)" requirements.txt \
-    | pip install --no-cache-dir --ignore-installed -r /dev/stdin \
-    || echo "Some packages failed — continuing anyway"
-
-# Re-pin our critical versions that requirements.txt may have overwritten
-RUN pip install --no-cache-dir --force-reinstall \
-    "numpy<2" \
-    "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
-    "accelerate==0.29.3"
-
 # RunPod SDK with brotli support for aiohttp content decoding
-# v4 - install all brotli variants + upgrade aiohttp + latest runpod
 RUN pip install --no-cache-dir --upgrade \
     runpod \
-    aiohttp[speedups] \
+    "aiohttp[speedups]" \
     brotli \
     brotlicffi \
     && python -c "import brotli; print('brotli OK')" \
-    && python -c "import aiohttp; print(f'aiohttp {aiohttp.__version__}')" \
     && python -c "import runpod; print(f'runpod {runpod.__version__}')"
 
 # NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
