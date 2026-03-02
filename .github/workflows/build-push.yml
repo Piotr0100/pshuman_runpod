@@ -43,5 +43,5 @@ jobs:
           push: true
           tags: |
             ghcr.io/piotr0100/pshuman_runpod:latest
-            ghcr.io/piotr0100/pshuman_runpod:v5
+            ghcr.io/piotr0100/pshuman_runpod:v6
           no-cache: true

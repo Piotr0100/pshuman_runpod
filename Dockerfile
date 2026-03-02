@@ -27,7 +27,7 @@ WORKDIR $PSHUMAN_DIR
 # Pin transformers<4.41 (CLIPFeatureExtractor removed in 4.41+)
 # Pin diffusers compatible with PyTorch 2.1
 RUN pip install --no-cache-dir \
-    "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub<1.0" \
+    "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
     "accelerate==0.29.3" safetensors \
     omegaconf einops configargparse \
     opencv-python-headless Pillow scikit-image imageio \
