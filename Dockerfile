@@ -21,12 +21,17 @@ RUN pip install --no-cache-dir kaolin==0.17.0 \
 # Clone PSHuman
 RUN git clone https://github.com/pengHTYX/PSHuman.git $PSHUMAN_DIR
 
-# Install PSHuman requirements
+# Install only what PSHuman inference actually needs (skip full requirements.txt
+# which has 128 packages including conflicting torch/CUDA/TensorRT versions)
 WORKDIR $PSHUMAN_DIR
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Install RunPod SDK + utility packages
-RUN pip install --no-cache-dir runpod trimesh plyfile "rembg[gpu]"
+RUN pip install --no-cache-dir \
+    diffusers transformers huggingface_hub accelerate safetensors \
+    omegaconf einops configargparse \
+    opencv-python-headless Pillow scikit-image imageio \
+    kornia open3d trimesh plyfile \
+    rembg[gpu] pymatting \
+    tqdm peft \
+    runpod
 
 # NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
 # This adds ~2min to the first request only.
