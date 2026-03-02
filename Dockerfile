@@ -28,12 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install RunPod SDK + utility packages
 RUN pip install --no-cache-dir runpod trimesh plyfile "rembg[gpu]"
 
-# Pre-download the HuggingFace model weights at build time
-# This avoids downloading on first request (saves ~2min cold start)
-RUN python -c "\
-from huggingface_hub import snapshot_download; \
-snapshot_download('pengHTYX/PSHuman_Unclip_768_6views', local_dir='/workspace/models/PSHuman_Unclip_768_6views')\
-"
+# NOTE: Model weights (~5GB) are downloaded on first cold start to keep image small.
+# This adds ~2min to the first request only.
 
 # Copy the handler
 COPY handler.py /workspace/handler.py
