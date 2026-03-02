@@ -21,22 +21,27 @@ RUN pip install --no-cache-dir kaolin==0.17.0 \
 # Clone PSHuman
 RUN git clone https://github.com/pengHTYX/PSHuman.git $PSHUMAN_DIR
 
-# Install only what PSHuman inference actually needs (skip full requirements.txt
-# which has 128 packages including conflicting torch/CUDA/TensorRT versions)
+# v8 - Install PSHuman's full requirements.txt but pin critical versions first
+# and filter out packages that conflict with our base image
 WORKDIR $PSHUMAN_DIR
-# Pin transformers<4.41 (CLIPFeatureExtractor removed in 4.41+)
-# Pin diffusers compatible with PyTorch 2.1
-# v7 - comprehensive deps with pinned versions for PyTorch 2.1 compat
+
+# Pin versions that must be compatible with PyTorch 2.1
 RUN pip install --no-cache-dir \
     "numpy<2" \
     "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
-    "accelerate==0.29.3" safetensors \
-    omegaconf einops configargparse \
-    opencv-python-headless Pillow scikit-image imageio \
-    kornia open3d trimesh plyfile \
-    "rembg[gpu]" pymatting \
-    tqdm peft \
-    yacs scipy matplotlib addict pygltflib pyquaternion fire
+    "accelerate==0.29.3" safetensors
+
+# Install everything from requirements.txt, skipping torch/cuda/tensorrt
+# (already in base image) and ignoring version conflicts
+RUN grep -viE "^(torch|nvidia|tensorrt|triton|xformers|pytorch3d|nvdiffrast|jax)" requirements.txt \
+    | pip install --no-cache-dir --ignore-installed -r /dev/stdin \
+    || echo "Some packages failed — continuing anyway"
+
+# Re-pin our critical versions that requirements.txt may have overwritten
+RUN pip install --no-cache-dir --force-reinstall \
+    "numpy<2" \
+    "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub==0.23.5" \
+    "accelerate==0.29.3"
 
 # RunPod SDK with brotli support for aiohttp content decoding
 # v4 - install all brotli variants + upgrade aiohttp + latest runpod
