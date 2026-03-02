@@ -24,12 +24,15 @@ RUN git clone https://github.com/pengHTYX/PSHuman.git $PSHUMAN_DIR
 # Install only what PSHuman inference actually needs (skip full requirements.txt
 # which has 128 packages including conflicting torch/CUDA/TensorRT versions)
 WORKDIR $PSHUMAN_DIR
+# Pin transformers<4.41 (CLIPFeatureExtractor removed in 4.41+)
+# Pin diffusers compatible with PyTorch 2.1
 RUN pip install --no-cache-dir \
-    diffusers transformers huggingface_hub accelerate safetensors \
+    "diffusers==0.27.2" "transformers==4.40.2" "huggingface_hub<1.0" \
+    "accelerate==0.29.3" safetensors \
     omegaconf einops configargparse \
     opencv-python-headless Pillow scikit-image imageio \
     kornia open3d trimesh plyfile \
-    rembg[gpu] pymatting \
+    "rembg[gpu]" pymatting \
     tqdm peft
 
 # RunPod SDK with brotli support for aiohttp content decoding
